@@ -12,7 +12,7 @@ export default function Home() {
   const owner = 'derek-botany'
   const repo = 'publish-to-docker'
 
-
+ // function for submit button
   const handleSubmit = async (event) => {
     event.preventDefault();
     const shouldSendInvite = await checkRepositoryRequirements(repositoryURL)
@@ -20,18 +20,18 @@ export default function Home() {
       await inviteUser(username)
     }
   }
-
+  // grab the repository name from url that requestor submitted
   const getRepositoryName = (repositoryURL) => {
     const splitURL = repositoryURL.split('/')
     return splitURL[splitURL.length - 1]
   }
 
-  // get repository owner from URL
+  // get repository owner from URL that requestor submitted
   const getRepositoryOwner = (repositoryURL) => {
     const splitURL = repositoryURL.split('/')
     return splitURL[splitURL.length - 2]
   }
-
+  // grab data about the repo that requestor submitted
   const getRepoData = async (repoName, repoOwner) => {
     const response = await octokit.request('GET /repos/{owner}/{repo}', {
       owner: repoOwner,
@@ -43,7 +43,7 @@ export default function Home() {
     const repositoryData = response.status == 200 ? response.data : null;
     return repositoryData;
   }
-
+  // check that repository is popular
   const checkRepositoryStars = async (repositoryData) => {
     const popularRepoCount = 7
     const isPopularRepo = repositoryData.stargazers_count >= popularRepoCount;
@@ -54,7 +54,7 @@ export default function Home() {
   const checkRepositoryLastCommit = async (repositoryData) => {
     const lastCommitDate = new Date(repositoryData.pushed_at);
     const currentDate = new Date();
-    const lastCommitRequirement = new Date(currentDate.setDate(currentDate.getDate() - 274));
+    const lastCommitRequirement = new Date(currentDate.setDate(currentDate.getDate() - 90));
     const isRecentCommit = lastCommitDate >= lastCommitRequirement;
     return isRecentCommit;
   }
@@ -66,7 +66,7 @@ export default function Home() {
     return isOwner;
   }
 
-  // check if user is already a collaborator
+  // is user listed as a member or collaborator of this org?
   const checkRepositoryCollaborators = async (repoOwner, repoName) => {
     const response = await octokit.request('GET /orgs/{org}/members/{username}', {
       org: repoOwner,
@@ -93,7 +93,7 @@ export default function Home() {
     return isEligible;
   }
 
-  // // function to check 
+  // // function to invite user to target repo
   const inviteUser = async (username) => {
     const response = await octokit.request(`PUT /repos/{owner}/{repo}/collaborators/${username}`, {
       permission: 'push',
