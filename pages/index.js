@@ -6,6 +6,7 @@ import { Octokit } from "octokit";
 export default function Home() {
   const octokit = new Octokit({
     auth: 'MY TOKEN',
+    test
   });
   const [username, setUsername] = useState("");
   const [repositoryURL, setRepository] = useState("");
