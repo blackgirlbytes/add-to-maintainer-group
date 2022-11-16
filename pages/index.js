@@ -9,19 +9,49 @@ export default function Home() {
   });
   const [username, setUsername] = useState("");
   const [repositoryURL, setRepository] = useState("");
+  const [appeal, setAppeal] = useState(null);
+  const [showManualForm, setShowManualForm] = useState(null);
   const owner = 'derek-botany'
-  const repo = 'publish-to-docker'
+  const repo = 'test'
 
  // function for submit button
-  const handleSubmit = async (event) => {
+  const handleSubmitToJoinRepo = async (event) => {
     event.preventDefault();
     const shouldSendInvite = await checkRepositoryRequirements(repositoryURL)
-    console.log('shouldSendInvite', shouldSendInvite)
     if (shouldSendInvite) {
       console.log('sending invite')
       await inviteUser(username)
+    } else {
+      setShowManualForm(true)
     }
   }
+  const handleSubmitToAppealRejection = async (event) => {
+    event.preventDefault();
+    await openIssue()
+}
+
+async function openIssue() {
+  const result = await octokit.request('POST /repos/{owner}/{repo}/issues', {
+    owner: owner,
+    repo: repo,
+    labels: ['pending-invitation'],
+    title: `Pending invitation request for: @${username}`,
+    body: `@${username} has requested to be added to the repository. Please review their request and add them to the repository if you feel it is appropriate. Here is the link to the repository they maintainer: ${repositoryURL} . Here is their appeal: ${appeal}`,
+  }).catch(err => {
+    console.log('err', err)
+    if (err.status === 403) {
+      console.log(`Forbidden ${err.status}`)
+    }
+    if (err.status === 422) {
+      console.log(`Unprocessable Entity ${err.status}`);
+    }
+  }
+  );
+  if (result === 201) {
+    console.log("opened an issue", result);
+  }
+}
+
   // grab the repository name from url that requestor submitted
   const getRepositoryName = (repositoryURL) => {
     const splitURL = repositoryURL.split('/')
@@ -56,7 +86,7 @@ export default function Home() {
   const checkRepositoryLastCommit = async (repositoryData) => {
     const lastCommitDate = new Date(repositoryData.pushed_at);
     const currentDate = new Date();
-    const lastCommitRequirement = new Date(currentDate.setDate(currentDate.getDate() - 400));
+    const lastCommitRequirement = new Date(currentDate.setDate(currentDate.getDate() - 90));
     const isRecentCommit = lastCommitDate >= lastCommitRequirement;
     return isRecentCommit;
   }
@@ -115,7 +145,19 @@ export default function Home() {
   };
 
   return (
-    <form onSubmit={handleSubmit}>
+    <div>
+      {showManualForm ?
+      <div>
+        <p>Our automated checks indicate that you are not eligible to join the Maintainers group. If you believe this is wrong, please use the text box below to share more details about your involvement in the project you maintain. A team member will manually review your request and get back to you!</p>
+        <form onSubmit={handleSubmitToAppealRejection}>
+          <label>Manual Request:
+            <textarea type="text" value={appeal} name="appeal"  onChange={(e) => setAppeal(e.target.value)} />
+          </label>
+          <button type="submit"> Submit </button>
+        </form>
+     </div>
+    : 
+      <form onSubmit={handleSubmitToJoinRepo}>
       <label>GitHub Username:
         <input
           type="text"
@@ -131,6 +173,7 @@ export default function Home() {
         />
       </label>
       <button type="submit"> Submit </button>
-    </form>
+    </form>}
+    </div>
   )
 }
