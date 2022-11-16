@@ -5,7 +5,7 @@ import { Octokit } from "octokit";
 
 export default function Home() {
   const octokit = new Octokit({
-    auth: 'MY TOKEN',
+    auth: 'my token',
   });
   const [username, setUsername] = useState("");
   const [repositoryURL, setRepository] = useState("");
@@ -16,7 +16,9 @@ export default function Home() {
   const handleSubmit = async (event) => {
     event.preventDefault();
     const shouldSendInvite = await checkRepositoryRequirements(repositoryURL)
+    console.log('shouldSendInvite', shouldSendInvite)
     if (shouldSendInvite) {
+      console.log('sending invite')
       await inviteUser(username)
     }
   }
@@ -54,29 +56,31 @@ export default function Home() {
   const checkRepositoryLastCommit = async (repositoryData) => {
     const lastCommitDate = new Date(repositoryData.pushed_at);
     const currentDate = new Date();
-    const lastCommitRequirement = new Date(currentDate.setDate(currentDate.getDate() - 90));
+    const lastCommitRequirement = new Date(currentDate.setDate(currentDate.getDate() - 400));
     const isRecentCommit = lastCommitDate >= lastCommitRequirement;
     return isRecentCommit;
   }
 
   // // is user owner of repository?
-  const checkRepositoryOwner = async () => {
-    const isOwner = repositoryData.owner.login == username;
-    console.log(isOwner)
+  const checkRepositoryOwner = async (repoData) => {
+    const isOwner = repoData.owner.login == username;
+    console.log('they are owner', isOwner)
     return isOwner;
   }
 
   // is user listed as a member or collaborator of this org?
-  const checkRepositoryCollaborators = async (repoOwner, repoName) => {
-    const response = await octokit.request('GET /orgs/{org}/members/{username}', {
-      org: repoOwner,
-      username: username
-    }).catch(error => {
-      console.log(error);
-    });
-    const isCollaborator = response.status == 204;
-    return isCollaborator;
-  }
+  // const checkRepositoryCollaborators = async (repoOwner, repoName) => {
+  //   const response = await octokit.request('GET /repos/{owner}/{repo}/collaborators', {
+  //     owner: repoOwner,
+  //     repo: repoName
+  //   }).catch(error => {
+  //     console.log(error);
+  //   });
+  //   const isCollaborator = response.status == 200;
+  //   console.log('collaborator response', response)
+  //   console.log('isCollaborator', isCollaborator)
+  //   return isCollaborator;
+  // }
 
   // // function that checks all the above functions
   const checkRepositoryRequirements = async (repositoryURL) => {
@@ -85,10 +89,15 @@ export default function Home() {
     const repoData = await getRepoData(repoName, repoOwner);
 
     const isPopularRepo = await checkRepositoryStars(repoData);
+    console.log('isPopularRepo', isPopularRepo)
     const isRepoActive = await checkRepositoryLastCommit(repoData);
+    console.log('isRepoActive', isRepoActive)
 
-    const isMaintainer = await checkRepositoryCollaborators(repoOwner, repoName) || await checkRepositoryOwner();
+    const isMaintainer =  await checkRepositoryOwner(repoData);
+    // await checkRepositoryCollaborators(repoOwner, repoName) ||
+    console.log('isMaintainer', isMaintainer)
     const isEligible = isPopularRepo && isRepoActive && isMaintainer;
+    console.log('are they eligible', isEligible)
 
     return isEligible;
   }
