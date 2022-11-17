@@ -69,6 +69,15 @@ export default function Home() {
     return isRecentCommit;
   }
 
+// repo must be older than 6 months
+  const checkRepositoryAge = async (repositoryData) => {
+    const repoCreationDate = new Date(repositoryData.created_at);
+    const currentDate = new Date();
+    const repoAgeRequirement = new Date(currentDate.setMonth(currentDate.getMonth() - 6));
+    const isOlderThanSixMonths = repoCreationDate <= repoAgeRequirement;
+    return isOlderThanSixMonths;
+  }
+
   // // is user owner of repository?
   const checkRepositoryOwner = async (repoData) => {
     const isOwner = repoData.owner.login == username;
@@ -104,7 +113,10 @@ export default function Home() {
     const isMaintainer =  await checkRepositoryOwner(repoData);
     // await checkRepositoryCollaborators(repoOwner, repoName) ||
     console.log('isMaintainer', isMaintainer)
-    const isEligible = isPopularRepo && isRepoActive && isMaintainer;
+    const isOlderThanSixMonths = await checkRepositoryAge(repoData);
+    console.log('isOlderThanSixMonths', isOlderThanSixMonths)
+
+    const isEligible = isPopularRepo && isRepoActive && isMaintainer && isOlderThanSixMonths;
     console.log('are they eligible', isEligible)
 
     return isEligible;
