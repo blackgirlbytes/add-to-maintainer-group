@@ -1,26 +1,19 @@
-# This workflow will add a member to the organization when an issue is labeled with "approved"
-
 name: Invite member to organization
-
 on:
   issues:
-    types: [labeled]
-    
+    types:
+      - labeled
+
 jobs:
-   comment:
+  build:
     if:  github.event.label.name == 'approved'
+    name: Add collaborator!
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/github-script@v6
-        with:
-          script: |
-            github.rest.issues.createComment({
-              issue_number: context.issue.number,
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              body: '👋 You've been invited! Check your email for an invitation. It expires in 7 days.'
-            })
-
-
-
-     
+      - uses: blackgirlbytes/invite-collaborator-action@main
+        name: Perform invitation action
+        env:
+          # REQUIRED
+          INVITATION_TOKEN: ${{ secrets.INVITE_COLLABORATORS }}
+          # OPTIONAL
+          ORG: false
