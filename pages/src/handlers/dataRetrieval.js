@@ -1,6 +1,6 @@
 import { Octokit } from "octokit";
 const octokit = new Octokit({
-  auth: "add token here",
+  auth: "your token here",
 });
 // grab the repository name from url that requestor submitted
 const getRepositoryName = (repositoryURL) => {
@@ -27,7 +27,18 @@ const getRepoData = async (repoName, repoOwner) => {
   const repositoryData = response.status == 200 ? response.data : null;
   return repositoryData;
 };
-
+// get GitHub user handle by email
+const getUserHandleByEmail = async (email) => {
+  const response = await octokit
+    .request("GET /search/users", {
+      q: email,
+    })
+    .catch((error) => {
+      console.log(error);
+    });
+  const userHandle = response.status == 200 ? response.data.items[0].login : null;
+  return userHandle;
+};
   // get all repositories owned by user
   const getUserRepositories = async (username) => {
     const response = await octokit
@@ -45,5 +56,6 @@ module.exports = {
   getRepositoryName,
   getRepositoryOwner,
   getRepoData,
-  getUserRepositories
+  getUserRepositories,
+  getUserHandleByEmail
 };

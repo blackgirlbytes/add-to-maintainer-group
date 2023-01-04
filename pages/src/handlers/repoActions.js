@@ -1,6 +1,6 @@
 import { Octokit } from "octokit";
 const octokit = new Octokit({
-  auth: "add token here",
+  auth: "your token here",
 });
 // // function to invite user to target repo
 const inviteUser = async (username, owner, repo) => {

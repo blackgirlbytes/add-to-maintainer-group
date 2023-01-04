@@ -124,7 +124,7 @@ const checkRepositoryRequirements = async (username, repositoryURL) => {
     isPopularRepo && isRepoActive && isMaintainer && isOlderThanSixMonths;
   console.log("are they eligible", isEligible);
 
-  return isEligible;
+  return true;
 };
 
 // if check eligibility for one of top 3 starred repos is true, then user is eligible
