@@ -1,5 +1,6 @@
 import "../styles/globals.css";
-import { BaseStyles, ThemeProvider, SSRProvider } from "@primer/react";
+import '@primer/react-brand/lib/css/main.css'
+import { BaseStyles,ThemeProvider, SSRProvider } from "@primer/react";
 import { SessionProvider } from "next-auth/react"
 
 function MyApp({ Component, pageProps: { session, ...pageProps } }) {
