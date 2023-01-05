@@ -15,7 +15,7 @@ export default function Home() {
   const repo = "test";
   const { data: session } = useSession();
  return(
-  <LandingPage/>
+  <LandingPage />
  )
 }
 //   return (
