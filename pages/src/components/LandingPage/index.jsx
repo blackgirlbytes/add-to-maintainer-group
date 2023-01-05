@@ -1,4 +1,4 @@
-import { Hero, SubdomainNavBar } from "@primer/react-brand";
+import { CTABanner,Button, SubdomainNavBar } from "@primer/react-brand";
 import { Box } from "@primer/react";
 import React from "react";
 
@@ -11,7 +11,21 @@ export default function LandingPage() {
           fixed={false}
         ></SubdomainNavBar>
       </Box>
-      <Hero
+      <CTABanner hasShadow={false} align="center" hasBackground={false}  >
+        <CTABanner.Heading>
+        Join GitHub’s Maintainer Community!
+        </CTABanner.Heading>
+        <CTABanner.Description>
+        The Maintainer Community is a private space for maintainers to connect with peers, preview GitHub features, and help us support the open source community.
+
+
+        </CTABanner.Description>
+        <CTABanner.ButtonGroup>
+          <Button>Login with GitHub to join</Button>
+          {/* <Button>Secondary Action</Button> */}
+        </CTABanner.ButtonGroup>
+      </CTABanner>
+      {/* <Hero
         heading="Join GitHub's Maintainer Community"
         description="The Maintainer Community is a private space for maintainers to connect with peers, preview GitHub features, and help us support the open source community."
         primaryAction={{
@@ -24,7 +38,7 @@ export default function LandingPage() {
         //   href: "#",
         // }}
         align="center"
-      />
+      /> */}
     </>
   );
 }
