@@ -13,10 +13,7 @@
     background-image: url('../public/assets/blur-glow-pry.svg');
     background-repeat: no-repeat;
   }
-.upside-down-bg-glow-pry {
-  background-image: url('../public/assets/upside-down-blur-glow-pry.svg');
-  background-repeat: no-repeat;
-}
+
 .dark-primary{
   background: #0d1117;
 }
