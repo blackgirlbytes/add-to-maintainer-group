@@ -44,7 +44,8 @@ export default function Authenticated({ email }) {
         return (
           <div>
             <CTABanner hasShadow={false} align="center" hasBackground={false}>
-              <CTABanner.Heading>Hi, {handle} &#128075;</CTABanner.Heading>
+              {/* <CTABanner.Heading>Hi, {handle} &#128075;</CTABanner.Heading> */}
+              <CTABanner.Heading>Hi, {handle}</CTABanner.Heading>
               <CTABanner.Description>
                 To join the maintainers repository, you must be a maintainer of
                 an active repository.
