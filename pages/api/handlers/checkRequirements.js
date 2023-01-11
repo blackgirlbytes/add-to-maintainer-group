@@ -1,4 +1,10 @@
-import { getRepositoryName, getRepoData, getRepositoryOwner, getUserRepositories} from "./dataRetrieval";
+import {
+  getRepositoryName,
+  getRepoData,
+  getRepositoryOwner,
+  getUserRepositories,
+  isHubber,
+} from "./dataRetrieval";
 
 // check that repository is popular
 const checkRepositoryStars = async (repositoryData) => {
@@ -6,6 +12,7 @@ const checkRepositoryStars = async (repositoryData) => {
   const isPopularRepo = repositoryData.stargazers_count >= popularRepoCount;
   return isPopularRepo;
 };
+
 // check if repo's last commit was within the last 90 days
 const checkRepositoryLastCommit = async (repositoryData) => {
   const lastCommitDate = new Date(repositoryData.pushed_at);
@@ -31,7 +38,6 @@ const checkRepositoryAge = async (repositoryData) => {
 // is user owner of repository?
 const checkRepositoryOwner = async (repoData, username) => {
   const isOwner = repoData.owner.login == username;
-  console.log("they are owner", isOwner);
   return isOwner;
 };
 
@@ -44,12 +50,10 @@ const getTopStarredRepository = async (username) => {
       return b.stargazers_count - a.stargazers_count;
     });
     const mostStarredRepository = sortedRepositories[0].html_url;
-    console.log(mostStarredRepository)
     return mostStarredRepository;
   } else {
     return null;
   }
-  
 };
 
 // return second top starred repositories
@@ -60,7 +64,6 @@ const getSecondTopStarredRepository = async (username) => {
       return b.stargazers_count - a.stargazers_count;
     });
     const secondMostStarredRepository = sortedRepositories[1].html_url;
-    console.log(secondMostStarredRepository)
     return secondMostStarredRepository;
   } else {
     return null;
@@ -75,7 +78,6 @@ const getThirdTopStarredRepository = async (username) => {
       return b.stargazers_count - a.stargazers_count;
     });
     const thirdMostStarredRepository = sortedRepositories[2].html_url;
-    console.log(thirdMostStarredRepository)
     return thirdMostStarredRepository;
   } else {
     return null;
@@ -84,24 +86,29 @@ const getThirdTopStarredRepository = async (username) => {
 
 const checkEligibilityForTopStarredRepository = async (username) => {
   const repositoryURL = await getTopStarredRepository(username);
-  const eligibilityTopStarredRepo = await checkRepositoryRequirements(username, repositoryURL);
-  console.log('first')
+  const eligibilityTopStarredRepo = await checkRepositoryRequirements(
+    username,
+    repositoryURL
+  );
   return eligibilityTopStarredRepo;
 };
 const checkEligibilityForSecondTopStarredRepository = async (username) => {
   const repositoryURL = await getSecondTopStarredRepository(username);
-  const eligibilitySecondTopStarredRepo = await checkRepositoryRequirements(username, repositoryURL);
-  console.log('second')
+  const eligibilitySecondTopStarredRepo = await checkRepositoryRequirements(
+    username,
+    repositoryURL
+  );
   return eligibilitySecondTopStarredRepo;
 };
 
 const checkEligibilityForThirdTopStarredRepository = async (username) => {
   const repositoryURL = await getThirdTopStarredRepository(username);
-  const eligibilityThirdTopStarredRepo = await checkRepositoryRequirements(username, repositoryURL);
-  console.log('third')
+  const eligibilityThirdTopStarredRepo = await checkRepositoryRequirements(
+    username,
+    repositoryURL
+  );
   return eligibilityThirdTopStarredRepo;
 };
-
 
 // function that checks all the above functions
 const checkRepositoryRequirements = async (username, repositoryURL) => {
@@ -110,47 +117,34 @@ const checkRepositoryRequirements = async (username, repositoryURL) => {
   const repoData = await getRepoData(repoName, repoOwner);
 
   const isPopularRepo = await checkRepositoryStars(repoData);
-  console.log("isPopularRepo", isPopularRepo);
   const isRepoActive = await checkRepositoryLastCommit(repoData);
-  console.log("isRepoActive", isRepoActive);
-
   const isMaintainer = await checkRepositoryOwner(repoData, username);
-  // await checkRepositoryCollaborators(repoOwner, repoName) ||
-  console.log("isMaintainer", isMaintainer);
   const isOlderThanSixMonths = await checkRepositoryAge(repoData);
-  console.log("isOlderThanSixMonths", isOlderThanSixMonths);
 
-  const isEligible =
+  const nonStaffEligibility =
     isPopularRepo && isRepoActive && isMaintainer && isOlderThanSixMonths;
-  console.log("are they eligible", isEligible);
+  const hubberEligibility = isHubber;
+  const isEligible = hubberEligibility || nonStaffEligibility;
 
-  return true;
+  return false;
 };
 
 // if check eligibility for one of top 3 starred repos is true, then user is eligible
 const isUserEligible = async (username) => {
-  const getTopStarredRepository = await checkEligibilityForTopStarredRepository(username);
-  const getSecondTopStarredRepository = await checkEligibilityForSecondTopStarredRepository(username);
-  const getThirdTopStarredRepository = await checkEligibilityForThirdTopStarredRepository(username);
-  const eligibility = getTopStarredRepository || getSecondTopStarredRepository || getThirdTopStarredRepository;
-  console.log('eligibility', eligibility)
+  const getTopStarredRepository = await checkEligibilityForTopStarredRepository(
+    username
+  );
+  const getSecondTopStarredRepository =
+    await checkEligibilityForSecondTopStarredRepository(username);
+  const getThirdTopStarredRepository =
+    await checkEligibilityForThirdTopStarredRepository(username);
+  const eligibility =
+    getTopStarredRepository ||
+    getSecondTopStarredRepository ||
+    getThirdTopStarredRepository;
   return eligibility;
 };
-// figure out if they're an admin instead
-// is user listed as a member or collaborator of this org?
-// const checkRepositoryCollaborators = async (repoOwner, repoName) => {
-//   const response = await octokit.request('GET /repos/{owner}/{repo}/collaborators', {
-//     owner: repoOwner,
-//     repo: repoName
-//   }).catch(error => {
-//     console.log(error);
-//   });
-//   const isCollaborator = response.status == 200;
-//   console.log('collaborator response', response)
-//   console.log('isCollaborator', isCollaborator)
-//   return isCollaborator;
-// }
 
 module.exports = {
-  isUserEligible
+  isUserEligible,
 };
