@@ -70,11 +70,11 @@ export default function Authenticated({ email }) {
           <div>
             <CTABanner hasShadow={false} align="center" hasBackground={false}>
               <CTABanner.Heading>
-                You've been invited
+                You&apos;ve been invited
               </CTABanner.Heading>
               <CTABanner.Description>
                 Check your inbox for an invitation to the community/maintainers
-                repository or click the button below! You’ll have 7 days to
+                repository or click the button below! You&apos;ll have 7 days to
                 accept the invitation and join the Maintainer Community.
               </CTABanner.Description>
               <CTABanner.ButtonGroup>
