@@ -48,7 +48,6 @@ export default function Authenticated({ email }) {
               <CTABanner.Description>
                 To join the maintainers repository, you must be a maintainer of
                 an active repository.
-                <br />
                 <Link href="https://github.com/logout" underline>
                   Not you? Sign out of GitHub and try again
                 </Link>
@@ -71,7 +70,7 @@ export default function Authenticated({ email }) {
           <div>
             <CTABanner hasShadow={false} align="center" hasBackground={false}>
               <CTABanner.Heading>
-                You've been invited &#127881;{" "}
+                You've been invited
               </CTABanner.Heading>
               <CTABanner.Description>
                 Check your inbox for an invitation to the community/maintainers
